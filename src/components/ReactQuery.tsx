@@ -9,17 +9,13 @@ type Album = {
 
 const fetchAlbums = async () => {
   const result = await axios.get<Album[]>(
-    "https://jsonplaceholder.typicode.com/albums"
+    "https://jsonplaceholder.typicode.com/albumsxxx"
   );
   return result.data;
 };
 
 export const ReactQuery = () => {
-  const { isLoading, error, data } = useQuery<Album[]>(["albums"], fetchAlbums);
-
-  // if (error) return <p>エラーです！</p>;
-  // if (isLoading) return <p>ローディング中</p>;
-
+  const { data } = useQuery<Album[]>(["albums"], fetchAlbums);
   return (
     <div>
       <p>React Query</p>
