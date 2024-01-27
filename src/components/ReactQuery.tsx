@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 type Album = {
@@ -15,7 +15,10 @@ const fetchAlbums = async () => {
 };
 
 export const ReactQuery = () => {
-  const { data } = useQuery<Album[]>(["albums"], fetchAlbums);
+  const { data } = useSuspenseQuery<Album[]>({
+    queryKey: ["albums"],
+    queryFn: fetchAlbums,
+  });
   return (
     <div>
       <p>React Query</p>
