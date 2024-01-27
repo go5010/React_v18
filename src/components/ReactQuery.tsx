@@ -1,30 +1,60 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { Sidebar } from "./Sidebar";
+import { AlbumList } from "./AlbumList";
+import { TodoList } from "./TodoList";
+import { Suspense, useState, useTransition } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
-type Album = {
-  userId: number;
-  id: number;
-  title: string;
-};
-
-const fetchAlbums = async () => {
-  const result = await axios.get<Album[]>(
-    "https://jsonplaceholder.typicode.com/albumsxxx"
-  );
-  return result.data;
-};
+type Tabs = "todo" | "album";
 
 export const ReactQuery = () => {
-  const { data } = useSuspenseQuery<Album[]>({
-    queryKey: ["albums"],
-    queryFn: fetchAlbums,
-  });
+  const [selectedTab, setSelectedTab] = useState<Tabs>("todo");
+  const [isPending, startTransition] = useTransition();
+
+  const buttonStyle = {
+    padding: "12px",
+    fontSize: "16px",
+    border: "none",
+    opacity: isPending ? 0.5 : 1,
+  };
+  const albumButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: selectedTab === "album" ? "royalblue" : "white",
+    color: selectedTab === "album" ? "white" : "black",
+  };
+  const todoButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: selectedTab === "todo" ? "royalblue" : "white",
+    color: selectedTab === "todo" ? "white" : "black",
+  };
+
+  const onClickTabButton = (tab: Tabs) => {
+    startTransition(() => {
+      setSelectedTab(tab);
+    });
+  };
+
   return (
-    <div>
-      <p>React Query</p>
-      {data?.map((album) => (
-        <p key={album.id}>{album.title}</p>
-      ))}
+    <div style={{ display: "flex", padding: "16px" }}>
+      <Sidebar />
+      <div style={{ flexGrow: 1 }}>
+        <button
+          style={todoButtonStyle}
+          onClick={() => onClickTabButton("todo")}
+        >
+          Todo
+        </button>
+        <button
+          style={albumButtonStyle}
+          onClick={() => onClickTabButton("album")}
+        >
+          Album
+        </button>
+        <ErrorBoundary fallback={<p>Listエラーです！</p>}>
+          <Suspense fallback={<p>Listローディング中</p>}>
+            {selectedTab === "todo" ? <TodoList /> : <AlbumList />}
+          </Suspense>
+        </ErrorBoundary>
+      </div>
     </div>
   );
 };
